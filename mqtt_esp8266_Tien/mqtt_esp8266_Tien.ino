@@ -33,8 +33,8 @@
 
 Adafruit_TSL2561_Unified tsl = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
 
-const char* ssid = "HOANG AN";
-const char* password = "hoangan2015";
+const char* ssid = "";
+const char* password = "";
 const char* mqtt_server = "test.mosquitto.org";
 
 WiFiClient espClient;
