@@ -16,8 +16,8 @@
 #include <DHT_U.h>
 
 #define DHTPIN            12         // Pin which is connected to the DHT sensor.
-#define DHTTYPE           DHT11     // DHT 11 
-
+//#define DHTTYPE           DHT11     // DHT 11 
+#define DHTTYPE             DHT22
 const char *ssid = "agrinode";
 const char *pass = "12345678";
 

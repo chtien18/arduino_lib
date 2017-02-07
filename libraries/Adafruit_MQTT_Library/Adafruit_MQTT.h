@@ -31,7 +31,7 @@
 
 #define ADAFRUIT_MQTT_VERSION_MAJOR 0
 #define ADAFRUIT_MQTT_VERSION_MINOR 16
-#define ADAFRUIT_MQTT_VERSION_PATCH 1
+#define ADAFRUIT_MQTT_VERSION_PATCH 2
 
 // Uncomment/comment to turn on/off debug output messages.
 //#define MQTT_DEBUG
@@ -110,7 +110,11 @@
 
 // how much data we save in a subscription object
 // eg max-subscription-payload-size
-#define SUBSCRIPTIONDATALEN 20
+#if defined  (__AVR_ATmega32U4__) || defined(__AVR_ATmega328P__)
+  #define SUBSCRIPTIONDATALEN 20
+#else
+  #define SUBSCRIPTIONDATALEN 100
+#endif
 
 class AdafruitIO_Feed;  // forward decl
 
