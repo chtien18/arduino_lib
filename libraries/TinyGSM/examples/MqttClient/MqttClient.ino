@@ -25,14 +25,22 @@
  *
  **************************************************************/
 
+// Select your modem:
+#define TINY_GSM_MODEM_SIM800
+// #define TINY_GSM_MODEM_SIM900
+// #define TINY_GSM_MODEM_A6
+// #define TINY_GSM_MODEM_A7
+// #define TINY_GSM_MODEM_M590
+// #define TINY_GSM_MODEM_ESP8266
+
 #include <TinyGsmClient.h>
 #include <PubSubClient.h>
 
 // Your GPRS credentials
 // Leave empty, if missing user or pass
-char apn[]  = "YourAPN";
-char user[] = "";
-char pass[] = "";
+const char apn[]  = "YourAPN";
+const char user[] = "";
+const char pass[] = "";
 
 // Use Hardware Serial on Mega, Leonardo, Micro
 #define SerialAT Serial1
@@ -68,8 +76,12 @@ void setup() {
   delay(3000);
 
   // Restart takes quite some time
-  // You can skip it in many cases
+  // To skip it, call init() instead of restart()
+  Serial.println("Initializing modem...");
   modem.restart();
+
+  // Unlock your SIM card with a PIN
+  //modem.simUnlock("1234");
 
   Serial.print("Waiting for network...");
   if (!modem.waitForNetwork()) {

@@ -24,11 +24,14 @@
  *   node-red-dashboard
  *
  **************************************************************/
-
+#define TINY_GSM_MODEM_SIM800
 #include <TinyGsmClient.h>
 #include <PubSubClient.h>
 #include "gprs.h"
 #include "DHT.h"
+
+#include <Wire.h>
+#include <Adafruit_BMP085.h>
 
 // Your GPRS credentials
 // Leave empty, if missing user or pass
@@ -58,12 +61,13 @@ const char* broker = "mqtt.thingspeak.com";
 // DHT Sensor connected to digital pin 2
 #define DHTPIN 10
 // Type of DHT sensor
-#define DHTTYPE DHT11 
+#define DHTTYPE DHT22 
 // Analog light sensor connected to analog pin A0
 #define LIGHTPIN A0 
 // Initialize DHT sensor
 DHT dht(DHTPIN, DHTTYPE);
 
+Adafruit_BMP085 bmp;
 
 #define LED_PIN 13
 int ledStatus = LOW;
@@ -73,29 +77,37 @@ long lastReconnectAttempt = 0;
 // track the last connection time
 unsigned long lastConnectionTime = 0; 
 // post data every 600 seconds (10 minute)
-const unsigned long postingInterval = 600L * 1000L; 
+const unsigned long postingInterval = 60L * 1000L; 
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
 
   // Set console baud rate
   Serial.begin(9600);
-  delay(10);
+ 
+  delay(100);
   gprs.preInit();
   
   // Set GSM module baud rate
   SerialAT.begin(9600);
   delay(3000);
-
+ if (!bmp.begin()) {
+  Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+  while (1) {}
+  }
+    dht.begin();
+    
   // Restart takes quite some time
   // You can skip it in many cases
   modem.restart();
-  dht.begin();
+
   Serial.print("Waiting for network...");
   if (!modem.waitForNetwork()) {
     Serial.println(" fail");
     while (true);
   }
+
+  
   Serial.println(" OK");
 
   Serial.print("Connecting to ");
@@ -114,7 +126,7 @@ void setup() {
 boolean mqttConnect() {
   Serial.print("Connecting to ");
   Serial.print(broker);
-  if (!mqtt.connect("GsmClientTest")) {
+  if (!mqtt.connect("agrinode01")) {
     Serial.println(" fail");
     return false;
   }
@@ -138,6 +150,7 @@ void loop() {
     unsigned long t = millis();
     if (t - lastReconnectAttempt > 10000L) {
       lastReconnectAttempt = t;
+      gprs.preInit();
       if (mqttConnect()) {
         lastReconnectAttempt = 0;
       }
@@ -166,12 +179,19 @@ void mqttpublish() {
   float t = dht.readTemperature();
   // Read humidity from DHT sensor
   float h = dht.readHumidity();
+// read temp from barometric sensor
+  float t_baro= bmp.readTemperature();
+  float pressure = bmp.readPressure();
+  float altitude = bmp.readAltitude();
+  float sea_level = bmp.readSealevelPressure();
+  
   // Read from light sensor
   int lightLevel = analogRead(LIGHTPIN);
   //Resisten of light
   float Rsensor = (float)(1023-lightLevel)*10/lightLevel; 
   // Create data string to send to ThingSpeak
-  String data = String("field1=" + String(t, DEC) + "&field2=" + String(h, DEC) + "&field3=" + String(Rsensor, DEC));
+  String data = String("field1=" + String(t, DEC) + "&field2=" + String(h, DEC) + "&field3=" + String(t_baro, DEC) + "&field4=" + String(pressure, DEC) + "&field5=" + String(altitude, DEC) + "&field6=" + String(sea_level, DEC) + "&field7=" + String(Rsensor, DEC) );
+ //String data = String("field1=" + String(t, DEC) + "&field2=" + String(h, DEC)); 
   // Get the data string length
   int length = data.length();
   char msgBuffer[length];

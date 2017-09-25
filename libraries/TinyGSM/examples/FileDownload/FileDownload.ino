@@ -7,16 +7,30 @@
  * TinyGSM Getting Started guide:
  *   http://tiny.cc/tiny-gsm-readme
  *
+ * ATTENTION! Downloading big files requires quite a lot
+ * of knowledge - so this is for more experienced developers.
+ *
  **************************************************************/
+
+// Select your modem:
+#define TINY_GSM_MODEM_SIM800
+// #define TINY_GSM_MODEM_SIM900
+// #define TINY_GSM_MODEM_A6
+// #define TINY_GSM_MODEM_A7
+// #define TINY_GSM_MODEM_M590
+// #define TINY_GSM_MODEM_ESP8266
+
+// Increase RX buffer
+#define TINY_GSM_RX_BUFFER 1030
 
 #include <TinyGsmClient.h>
 #include <CRC32.h>
 
 // Your GPRS credentials
 // Leave empty, if missing user or pass
-char apn[]  = "YourAPN";
-char user[] = "";
-char pass[] = "";
+const char apn[]  = "YourAPN";
+const char user[] = "";
+const char pass[] = "";
 
 // Use Hardware Serial on Mega, Leonardo, Micro
 #define SerialAT Serial1
@@ -28,10 +42,10 @@ char pass[] = "";
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
 
-char server[] = "cdn.rawgit.com";
-char resource[] = "/vshymanskyy/tinygsm/master/extras/test_10k.hex";
-uint32_t knownCRC32 = 0x54b3dcbf;
-uint32_t knownFileSize = 10240;   // In case server does not send it
+const char server[] = "cdn.rawgit.com";
+const char resource[] = "/vshymanskyy/tinygsm/master/extras/test_1k.bin";
+uint32_t knownCRC32 = 0x6f50d767;
+uint32_t knownFileSize = 1024;   // In case server does not send it
 
 void setup() {
   // Set console baud rate
@@ -43,8 +57,12 @@ void setup() {
   delay(3000);
 
   // Restart takes quite some time
-  // You can skip it in many cases
+  // To skip it, call init() instead of restart()
+  Serial.println("Initializing modem...");
   modem.restart();
+
+  // Unlock your SIM card with a PIN
+  //modem.simUnlock("1234");
 }
 
 void printPercent(uint32_t readLength, uint32_t contentLength) {
@@ -81,7 +99,7 @@ void loop() {
 
   // if you get a connection, report back via serial:
   if (!client.connect(server, 80)) {
-    Serial.println(" failed");
+    Serial.println(" fail");
     delay(10000);
     return;
   }
@@ -110,7 +128,7 @@ void loop() {
     //Serial.println(line);    // Uncomment this to show response header
     line.toLowerCase();
     if (line.startsWith("content-length:")) {
-      contentLength = line.substring(line.lastIndexOf(':') + 1).toInt();  
+      contentLength = line.substring(line.lastIndexOf(':') + 1).toInt();
     } else if (line.length() == 0) {
       break;
     }
@@ -146,15 +164,13 @@ void loop() {
   Serial.println("GPRS disconnected");
   Serial.println();
 
-  float timeSpent = float(timeElapsed) / 1000;
-  float theorLimit = ((8.0 * readLength) / 85.6) / 1000;
+  float duration = float(timeElapsed) / 1000;
 
   Serial.print("Content-Length: ");   Serial.println(contentLength);
   Serial.print("Actually read:  ");   Serial.println(readLength);
   Serial.print("Calc. CRC32:    0x"); Serial.println(crc.finalize(), HEX);
   Serial.print("Known CRC32:    0x"); Serial.println(knownCRC32, HEX);
-  Serial.print("Time spent:     ");   Serial.print(timeSpent); Serial.println("s");
-  Serial.print("85.6kBps limit: ");   Serial.print(theorLimit); Serial.println("s");
+  Serial.print("Duration:       ");   Serial.print(duration); Serial.println("s");
 
   // Do nothing forevermore
   while (true) {

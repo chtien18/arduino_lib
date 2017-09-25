@@ -15,7 +15,7 @@
 #include <DHT.h>
 #include <DHT_U.h>
 
-#define DHTPIN            12         // Pin which is connected to the DHT sensor.
+#define DHTPIN            13         // Pin which is connected to the DHT sensor.
 //#define DHTTYPE           DHT11     // DHT 11 
 #define DHTTYPE             DHT22
 const char *ssid = "agrinode";
@@ -83,7 +83,7 @@ void connect() {
   }
 
   Serial.print("\nconnecting...");
-  while (!client.connect("arduino02", "chtien19", "iotsample-arduino")) {  //client, user, pass
+  while (!client.connect("arduino01", "chtien18", "iotsample-arduino")) {  //client, user, pass
     Serial.print(".");
     delay(1000);
   }
@@ -125,7 +125,7 @@ void messageReceived(String topic, String payload, char * bytes, unsigned int le
     char jsonStr[200];
     json.toCharArray(jsonStr,200);
     Serial.print(jsonStr);
-    client.publish("node02_data",jsonStr);
+    client.publish("node01_data",jsonStr);
     }
 }
 
@@ -160,7 +160,7 @@ void dht11_mesurement(){
 String buildJson() {
   String data = "{";
 
-  data+="\"ID\": \"Node02\",";
+  data+="\"ID\": \"Node01\",";
 
   data+="\"Humidity\": ";
   data+=(float)dht11_humidity;

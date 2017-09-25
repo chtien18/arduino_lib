@@ -8,13 +8,21 @@
  *
  **************************************************************/
 
+// Select your modem:
+#define TINY_GSM_MODEM_SIM800
+// #define TINY_GSM_MODEM_SIM900
+// #define TINY_GSM_MODEM_A6
+// #define TINY_GSM_MODEM_A7
+// #define TINY_GSM_MODEM_M590
+// #define TINY_GSM_MODEM_ESP8266
+
 #include <TinyGsmClient.h>
 
 // Your GPRS credentials
 // Leave empty, if missing user or pass
-char apn[]  = "YourAPN";
-char user[] = "";
-char pass[] = "";
+const char apn[]  = "YourAPN";
+const char user[] = "";
+const char pass[] = "";
 
 // Use Hardware Serial on Mega, Leonardo, Micro
 #define SerialAT Serial1
@@ -26,8 +34,10 @@ char pass[] = "";
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
 
-char server[] = "cdn.rawgit.com";
-char resource[] = "/vshymanskyy/tinygsm/master/extras/logo.txt";
+const char server[] = "cdn.rawgit.com";
+const char resource[] = "/vshymanskyy/tinygsm/master/extras/logo.txt";
+
+int port = 80;
 
 void setup() {
   // Set console baud rate
@@ -39,12 +49,16 @@ void setup() {
   delay(3000);
 
   // Restart takes quite some time
-  // You can skip it in many cases
+  // To skip it, call init() instead of restart()
+  Serial.println(F("Initializing modem..."));
   modem.restart();
+
+  // Unlock your SIM card with a PIN
+  //modem.simUnlock("1234");
 }
 
 void loop() {
-  Serial.print("Waiting for network...");
+  Serial.print(F("Waiting for network..."));
   if (!modem.waitForNetwork()) {
     Serial.println(" fail");
     delay(10000);
@@ -52,7 +66,7 @@ void loop() {
   }
   Serial.println(" OK");
 
-  Serial.print("Connecting to ");
+  Serial.print(F("Connecting to "));
   Serial.print(apn);
   if (!modem.gprsConnect(apn, user, pass)) {
     Serial.println(" fail");
@@ -61,10 +75,10 @@ void loop() {
   }
   Serial.println(" OK");
 
-  Serial.print("Connecting to ");
+  Serial.print(F("Connecting to "));
   Serial.print(server);
-  if (!client.connect(server, 80)) {
-    Serial.println(" failed");
+  if (!client.connect(server, port)) {
+    Serial.println(" fail");
     delay(10000);
     return;
   }

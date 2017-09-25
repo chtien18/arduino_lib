@@ -9,6 +9,17 @@
  *
  **************************************************************/
 
+// Select your modem:
+#define TINY_GSM_MODEM_SIM800
+// #define TINY_GSM_MODEM_SIM900
+// #define TINY_GSM_MODEM_A6
+// #define TINY_GSM_MODEM_A7
+// #define TINY_GSM_MODEM_M590
+// #define TINY_GSM_MODEM_ESP8266
+
+#include <TinyGsmClient.h>
+#include <StreamDebugger.h>
+
 // Set serial for debug console (to the Serial Monitor, speed 115200)
 #define SerialMon Serial
 
@@ -20,8 +31,6 @@
 //#include <SoftwareSerial.h>
 //SoftwareSerial SerialAT(2, 3); // RX, TX
 
-#include <TinyGsmClient.h>
-#include <StreamDebugger.h>
 StreamDebugger debugger(SerialAT, SerialMon);
 TinyGsm modem(debugger);
 
@@ -34,9 +43,9 @@ void setup() {
   SerialAT.begin(115200);
   delay(3000);
 
-  if (!modem.begin()) {
+  if (!modem.init()) {
     SerialMon.println(F("***********************************************************"));
-    SerialMon.println(F(" Cannot initialize module!"));
+    SerialMon.println(F(" Cannot initialize modem!"));
     SerialMon.println(F("   Use File -> Examples -> TinyGSM -> tools -> AT_Debug"));
     SerialMon.println(F("   to find correct configuration"));
     SerialMon.println(F("***********************************************************"));
