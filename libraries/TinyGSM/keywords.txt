@@ -3,6 +3,7 @@
 #######################################
 TinyGsm	KEYWORD1
 TinyGsmClient	KEYWORD1
+TinyGsmClientSecure	KEYWORD1
 
 SerialAT	KEYWORD1
 SerialMon	KEYWORD1
@@ -16,6 +17,8 @@ waitForNetwork	KEYWORD2
 getSimStatus	KEYWORD2
 gprsConnect	KEYWORD2
 gprsDisconnect	KEYWORD2
+isGprsConnected	KEYWORD2
+isNetworkConnected	KEYWORD2
 factoryReset	KEYWORD2
 
 #######################################

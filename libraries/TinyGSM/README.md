@@ -10,48 +10,98 @@ A small Arduino library for GSM modules, that just works.
 [![GitHub stars](https://img.shields.io/github/stars/vshymanskyy/TinyGSM.svg)](https://github.com/vshymanskyy/TinyGSM/stargazers)
 [![License](https://img.shields.io/badge/license-LGPL3-blue.svg)](https://github.com/vshymanskyy/TinyGSM/blob/master/LICENSE)
 
-If you like **TinyGSM** - give it a star, or fork it and contribute! 
-[![GitHub stars](https://img.shields.io/github/stars/vshymanskyy/TinyGSM.svg?style=social&label=Star)](https://github.com/vshymanskyy/TinyGSM/stargazers) 
+If you like **TinyGSM** - give it a star, or fork it and contribute!
+[![GitHub stars](https://img.shields.io/github/stars/vshymanskyy/TinyGSM.svg?style=social&label=Star)](https://github.com/vshymanskyy/TinyGSM/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/vshymanskyy/TinyGSM.svg?style=social&label=Fork)](https://github.com/vshymanskyy/TinyGSM/network)
+
+You can also join our chat:
+[![Gitter](https://img.shields.io/gitter/room/vshymanskyy/TinyGSM.svg)](https://gitter.im/tinygsm)
 
 ### Arduino Client interface support
 This library is easy to integrate with lots of sketches, which use Ethernet or WiFi.  
-Examples for **PubSubClient ([MQTT](http://mqtt.org/))**, **[Blynk](http://blynk.cc)**, **Web Client** and **File Download** are provided.
+**PubSubClient ([MQTT](http://mqtt.org/))**, **[Blynk](http://blynk.cc)**, **HTTP Client** and **File Download** examples are provided.
 
 ![examples](/extras/examples.png)
 
 ### TinyGSM is tiny
 The complete WebClient example for Arduino Uno (via Software Serial) takes little resources:
 ```
-Sketch uses 14094 bytes (43%) of program storage space. Maximum is 32256 bytes.
-Global variables use 625 bytes (30%) of dynamic memory, leaving 1423 bytes for local variables. Maximum is 2048 bytes.
+Sketch uses 15022 bytes (46%) of program storage space. Maximum is 32256 bytes.
+Global variables use 574 bytes (28%) of dynamic memory, leaving 1474 bytes for local variables. Maximum is 2048 bytes.
 ```
 Arduino GSM library uses 15868 bytes (49%) of Flash and 1113 bytes (54%) of RAM in a similar scenario.  
 TinyGSM also pulls data gently from the modem (whenever possible), so it can operate on very little RAM.  
 **Now, you have more space for your experiments.**
 
-### Supported modem models
-- [x] SIMCom SIM800 series (SIM800A, SIM800C, SIM800L, SIM800H, SIM808, SIM868)
-- [x] SIMCom SIM900 series (SIM900A, SIM900D, SIM908, SIM968)
-- [x] AI-Thinker A6, A6C, A7
-- [x] Neoway M590
-- [x] ESP8266 (AT commands interface, similar to GSM modems)
+## Features
 
-### Supported modules
-- [x] GPRSbee
-- [x] Microduino GSM
-- [x] Adafruit FONA (Mini Cellular GSM Breakout)
-- [x] Adafruit FONA 800/808 Shield
-- [x] ... other modules based on supported modems
+Feature \ Modem              | SIM8xx | U201   | A6/A7/A20 | M590 | ESP8266 | XBee 
+---                          | ---    | ---    | ---       | ---  | ---     | ---
+**Data connections**
+TCP (HTTP, MQTT, Blynk, ...) | ✔      | ✔      | ✔         | ✔    | ✔       | ✔
+UDP                          | ◌      | ◌      |           |      |         | ◌
+SSL/TLS (HTTPS)              | ✔¹     | ✔      | 🅧        | 🅧    | ✔¹      | ✔¹
+**USSD**
+Sending USSD requests        | ✔      |        | ✔         | ✔    | 🅧       | 
+Decoding 7,8,16-bit response | ✔      |        | ✔         | ✔    | 🅧      | 
+**SMS**
+Sending                      | ✔      |        | ✔         | ✔    | 🅧      | ✔
+Sending Unicode              | ✔      |        | ◌         | 🅧   | 🅧      | 
+Reading                      |        |        |           |      | 🅧      | 
+Incoming message event       |        |        |           | ?    | 🅧      | 
+**Calls**
+Dial, hangup                 | ✔      |        | ✔         | 🅧   | 🅧      | 🅧
+Receiving calls              | ✔      |        | ✔         | 🅧   | 🅧      | 🅧
+Incoming event (RING)        | ◌      |        | ◌         | 🅧   | 🅧      | 🅧
+DTMF sending                 | ✔      |        | ✔         | 🅧   | 🅧      | 🅧
+DTMF decoding                | ◌      |        | 🅧        | 🅧   | 🅧      | 🅧
+**Location**
+GSM location service         | ✔      | ✔      | 🅧        | 🅧   | 🅧      | ✔
+GPS/GNSS                     | ✔¹     | 🅧     | ◌¹        | 🅧   | 🅧      | 🅧
+
+✔ - implemented  ◌ - planned  🅧 - not available on this modem  
+¹ - only some device models or firmware revisions have this feature (SIM8xx R14.18, A7, etc.)  
+
+## Supported modems
+
+- SIMCom SIM800 series (SIM800A, SIM800C, SIM800L, SIM800H, SIM808, SIM868)
+- SIMCom SIM900 series (SIM900A, SIM900D, SIM908, SIM968)
+- AI-Thinker A6, A6C, A7, A20
+- U-blox SARA U201 (*alpha*)
+- ESP8266 (AT commands interface, similar to GSM modems)
+- Digi XBee WiFi and Cellular (using XBee command mode)
+- Neoway M590
+
+### Supported boards/modules
+- Arduino MKR GSM 1400 (*alpha*)
+- GPRSbee
+- Microduino GSM
+- Adafruit FONA (Mini Cellular GSM Breakout)
+- Adafruit FONA 800/808 Shield
+- Industruino GSM
+- ... other modules, based on supported modems
 
 More modems may be supported later:
-- [ ] Hi-Link HLK-RM04
 - [ ] Quectel M10, M95, UG95
-- [ ] SIMCom SIM5320, SIM5216
+- [ ] SIMCom SIM5320, SIM5360, SIM5216, SIM7xxx
 - [ ] Telit GL865
 - [ ] ZTE MG2639
+- [ ] Hi-Link HLK-RM04
 
 Watch this repo for new updates! And of course, contributions are welcome ;)
+
+## Donation
+
+[![Donate BountySource](https://img.shields.io/badge/Donate-BountySource-149E5E.svg)](https://salt.bountysource.com/checkout/amount?team=tinygsm-dev)
+[![Donate Bitcoin](https://img.shields.io/badge/Donate-Bitcoin-orange.svg)](http://tny.im/aen)
+
+If you have found TinyGSM to be useful in your work, research or company, please consider making a donation to the project commensurate with your resources. Any amount helps!  
+**All donations will be used strictly to fund the development of TinyGSM:**
+- Covering cellular network expences
+- Buying new hardware and modems for integration
+- Bounty Budget (to reward other developers for their contributions)
+- Implementing new features
+- Quality Assurance
 
 ## Getting Started
 
@@ -70,7 +120,17 @@ Watch this repo for new updates! And of course, contributions are welcome ;)
 Many GSM modems, WiFi and radio modules can be controlled by sending AT commands over Serial.  
 TinyGSM knows which commands to send, and how to handle AT responses, and wraps that into standard Arduino Client interface.
 
+## API Reference
+
+For GPRS data streams, this library provides the standard [Arduino Client](https://www.arduino.cc/en/Reference/ClientConstructor) interface.  
+For additional functions, please refer to [this example sketch](examples/AllFunctions/AllFunctions.ino)
+
 ## Troubleshooting
+
+### Diagnostics sketch
+
+Use this sketch to diagnose your SIM card and GPRS connection:  
+  File -> Examples -> TynyGSM -> tools -> [Diagnostics](https://github.com/vshymanskyy/TinyGSM/blob/master/tools/Diagnostics/Diagnostics.ino)
 
 ### SoftwareSerial problems
 
@@ -78,11 +138,16 @@ When using ```SoftwareSerial``` (on Uno, Nano, etc), the speed **115200** may no
 Try selecting **57600**, **38400**, or even lower - the one that works best for you.  
 Be sure to set correct TX/RX pins in the sketch. Please note that not every Arduino pin can serve as TX or RX pin.  
 **Read more about SoftSerial options and configuration [here](https://www.pjrc.com/teensy/td_libs_AltSoftSerial.html) and [here](https://www.arduino.cc/en/Reference/SoftwareSerial).**
+  
+### ESP32 HardwareSerial
 
-### Diagnostics sketch
+When using ESP32 `HardwareSerial`, you may need to specify additional parameters to the `.begin()` call.
+Please [refer to this comment](https://github.com/vshymanskyy/TinyGSM/issues/91#issuecomment-356024747).
 
-Use this sketch to diagnose your SIM card and GPRS connection:  
-  File -> Examples -> TynyGSM -> tools -> [Diagnostics](https://github.com/vshymanskyy/TinyGSM/blob/master/tools/Diagnostics/Diagnostics.ino)
+### SAMD21
+
+When using SAMD21-based boards, you may need to use a sercom uart port instead of `Serial1`.
+Please [refer to this comment](https://github.com/vshymanskyy/TinyGSM/issues/102#issuecomment-345548941).
 
 ### Broken initial configuration
 

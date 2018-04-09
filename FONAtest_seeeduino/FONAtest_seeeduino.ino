@@ -28,9 +28,9 @@ the commented section below at the end of the setup() function.
 #include "Adafruit_FONA.h"
 #include "gprs.h"
 
-#define FONA_RX 7
-#define FONA_TX 8
-#define FONA_RST 4
+#define FONA_RX 5
+#define FONA_TX 6
+#define FONA_RST 10
 
 GPRS gprs(9600);//BaudRate
 
@@ -57,6 +57,8 @@ uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 uint8_t type;
 
 void setup() {
+  pinMode(9,OUTPUT);
+  digitalWrite(9,HIGH);
   while (!Serial);
   gprs.preInit();//Power on SIM800
   Serial.begin(9600);
