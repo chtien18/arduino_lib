@@ -53,16 +53,19 @@ SoftwareSerial SerialAT(8, 7); // RX, TX
 
 // Your GPRS credentials
 // Leave empty, if missing user or pass
-const char apn[]  = "m-wap";
-const char user[] = "mms";
-const char pass[] = "mms";
+const char apn[]  = "e-connect";
+const char user[] = "";
+const char pass[] = "";
+
+//E-tape
+const int etapePin = A0;
+
+int etapeValue = 0;
 
 // MQTT details
-const char* broker = "test.mosquitto.org";
+const char* broker = "35.226.242.249";
 
-const char* topicLed = "GsmClientTest/led";
-const char* topicInit = "GsmClientTest/init";
-const char* topicLedStatus = "GsmClientTest/ledStatus";
+const char* topicLed = "etape1";
 
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
@@ -98,13 +101,14 @@ void setup() {
 }
   
 
-
 void loop() {
+
+  
   SerialMon.print("Waiting for network...");
   if (!modem.waitForNetwork()) {
     SerialMon.println(" fail");
-        digitalWrite(powerpin,LOW);
-     delay(800);
+            digitalWrite(powerpin,LOW);
+            delay(800);
             digitalWrite(powerpin,HIGH);
             delay(200);
             digitalWrite(powerpin,LOW);
@@ -127,45 +131,51 @@ void loop() {
 
   // MQTT Broker setup
   mqtt.setServer(broker, 1883);
-  mqtt.setCallback(mqttCallback);
 
-  if (!mqtt.connected())
-  {
-     mqttConnect();
-  }
- 
-  mqtt.loop();
+     //read etape
 
+     mqttPublish();
   
+  mqtt.loop();
+  delay(5000);
+  toggle(); //toggle gSM module power
+  delay(30000);
 }
 
-boolean mqttConnect() {
+void toggle(){
+  digitalWrite(powerpin,LOW);
+     delay(800);
+            digitalWrite(powerpin,HIGH);
+            delay(200);
+            digitalWrite(powerpin,LOW);
+            delay(2000);
+            digitalWrite(powerpin,HIGH);
+            delay(3000);  }
+            
+boolean mqttPublish() {
   SerialMon.print("Connecting to ");
   SerialMon.print(broker);
-  if (!mqtt.connect("GsmClientTest")) {
+  if (!mqtt.connect("etape1","etape1","12345678")) {
     SerialMon.println(" fail");
     return false;
   }
   SerialMon.println(" OK");
-  mqtt.publish(topicInit, "GsmClientTest started");
-  mqtt.subscribe(topicLed);
+  etapeValue=analogRead(etapePin);
+  String json =buildjson();
+  char jsonstr[50];
+  json.toCharArray(jsonstr,50);
+  Serial.println(jsonstr);
+  mqtt.publish(topicLed, jsonstr);
+  Serial.println("Success");
   return mqtt.connected();
- 
 }
 
-
-void mqttCallback(char* topic, byte* payload, unsigned int len) {
-  SerialMon.print("Message arrived [");
-  SerialMon.print(topic);
-  SerialMon.print("]: ");
-  SerialMon.write(payload, len);
-  SerialMon.println();
-
-  // Only proceed if incoming message's topic matches
-  if (String(topic) == topicLed) {
-    ledStatus = !ledStatus;
-    digitalWrite(LED_PIN, ledStatus);
-    mqtt.publish(topicLedStatus, ledStatus ? "1" : "0");
+String buildjson (){
+  String data="{";
+  data += "\"id\":\"etape1\",\"value\":";
+  data += etapeValue;
+  data += "}";
+  return data;
   }
-}
+
 

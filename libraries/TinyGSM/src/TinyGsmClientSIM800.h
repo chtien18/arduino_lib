@@ -709,8 +709,26 @@ public:
    */
 
   String getGsmLocation() {
-    sendAT(GF("+CIPGSMLOC=1,1"));
+    sendAT(GF("+CIPGSMLOC=2,1"));
     if (waitResponse(10000L, GF(GSM_NL "+CIPGSMLOC:")) != 1) {
+      return "";
+    }
+    String res = stream.readStringUntil('\n');
+    waitResponse();
+    res.trim();
+    return res;
+  }
+
+  /*
+   * Time functions
+   */
+  String getGsmTime() {
+    sendAT(GF("+CLTS=1"));
+    waitResponse();
+    //sendAT(GF("+CFUN=1,1"));
+    //waitResponse();
+    sendAT(GF("+CCLK?"));
+    if (waitResponse(10000L, GF(GSM_NL "+CCLK:")) != 1) {
       return "";
     }
     String res = stream.readStringUntil('\n');
@@ -750,9 +768,10 @@ public:
 protected:
 
   bool modemConnect(const char* host, uint16_t port, uint8_t mux, bool ssl = false) {
+    int rsp;
 #if !defined(TINY_GSM_MODEM_SIM900)
     sendAT(GF("+CIPSSL="), ssl);
-    int rsp = waitResponse();
+    rsp = waitResponse();
     if (ssl && rsp != 1) {
       return false;
     }
