@@ -29,9 +29,9 @@ int leafValue =0;
 float leafVol =0.0;
 float vol=0;
 float batVol=0.0;
-float soil_ec;
-float soil_moisture;
-float soil_temp;
+float value1;
+float value2;
+float value3;
 
 SDISerial sdi_serial_connection(DATALINE_PIN, INVERTED);
 
@@ -45,6 +45,9 @@ char* get_measurement(){
 
 void setup()
 {
+  pinMode(10,OUTPUT);
+  digitalWrite(10,HIGH);
+  delay(300);
   sdi_serial_connection.begin(); // start our SDI connection 
   pinMode(9,OUTPUT);
   digitalWrite(9,HIGH);
@@ -66,7 +69,7 @@ void loop()
   SubmitHttpRequest();
  // Serial.write("end");
   
-  for (int i=0;i<418;i++)
+  for (int i=0;i<4;i++)//418
   {
     LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);  
   }//delay(540000);
@@ -80,11 +83,13 @@ void loop()
 // Note: the time of the delays are very important
 void SubmitHttpRequest()
 {
-    soil_ec=0.00;
-    soil_moisture=0.00;
-    soil_temp=0.00;
-   digitalWrite(9,HIGH);
-   GetSensorData();
+   digitalWrite(9,LOW);
+    value1=0.00;
+    value2=0.00;
+    value3=0.00;
+
+    GetSensorData();
+    digitalWrite(9,HIGH);
    delay(18000);
    mySerial.println("AT");
    delay(2000);
@@ -131,7 +136,7 @@ void SubmitHttpRequest()
 //  ShowSerialData();
 
   // Set HTTP params, the second param is the website to request
-  mySerial.println("AT+HTTPPARA=\"URL\",\"cosin.herokuapp.com/chtien18/write/val1=" + String(batVol) + "&val2=" + String(leafVol)  + "&val3=" + String(soil_ec)+ "&val4=" + String(soil_moisture)+ "&val5=" + String(soil_temp)+"\"");
+  mySerial.println("AT+HTTPPARA=\"URL\",\"cosin.herokuapp.com/chtien18/write/val1=" + String(batVol) + "&val2=" + String(leafVol)  + "&val3=" + String(value1)+ "&val4=" + String(value2)+ "&val5=" + String(value3)+"\"");
   delay(1000);
 
  // ShowSerialData();
@@ -169,6 +174,8 @@ void SubmitHttpRequest()
 
 void GetSensorData()
   {
+    digitalWrite(10,HIGH);
+    delay(300);
   //Get leaf sensor from analog A0 and battery from A1
   sensorValue=analogRead(A1);
   vol=sensorValue * (5.0 / 1023.0);
@@ -180,7 +187,7 @@ void GetSensorData()
   char* response = get_measurement(); // get measurement data
 
   String data=String(response);
-  
+  digitalWrite(10,LOW);
   int dem=0;
   Serial.println(data);
   for (int f=0;f<data.length();f++){
@@ -189,7 +196,7 @@ void GetSensorData()
       dem++;
       if(dem==1){
         String ec;
-        for (int k=f+1; k<f+6;k++)
+        for (int k=f+1; k<f+8;k++)
           {
             ec+=data[k];
           }
@@ -197,8 +204,8 @@ void GetSensorData()
           {
             if (String(ec[k])=="+") ec[k]=0;
           }  
-        //  Serial.println("EC:" + ec); 
-          soil_ec=ec.toFloat();
+          Serial.println("moisture:" + ec); 
+          value1=ec.toFloat();
         };
         
       if(dem==2){
@@ -211,12 +218,12 @@ void GetSensorData()
           {
             if (String(moisture[k])=="+") moisture[k]=0;
           }  
-          //Serial.println("Moisture:" + moisture); 
-          soil_moisture=moisture.toFloat();
+          Serial.println("Temp:" + moisture); 
+          value2=moisture.toFloat();
         };
        if(dem==3){
         String temp;
-        for (int k=f+1; k<f+5;k++)
+        for (int k=f+1; k<f+8;k++)
           {
             temp+=data[k];
           }
@@ -224,11 +231,9 @@ void GetSensorData()
           {
             if (String(temp[k])=="+") temp[k]=0;
           }  
-          //Serial.println("Temp:" + temp); 
-          soil_temp=temp.toFloat();
+          Serial.println("EC:" + temp); 
+          value3=temp.toFloat();
         };
       }
     }
   }
-
-

@@ -100,7 +100,7 @@ void SubmitHttpRequest()
   ShowSerialData();
 
   // Set the APN
-  mySerial.println("AT+SAPBR=3,1,\"APN\",\"e-connect\"");
+  mySerial.println("AT+SAPBR=3,1,\"APN\",\"m-wap\"");
   delay(6000);
 
   ShowSerialData();
@@ -169,4 +169,3 @@ void ShowSerialData()
   while(mySerial.available()!=0)
     Serial.write(mySerial.read());
 }
-
