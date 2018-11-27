@@ -27,21 +27,21 @@
 
 #include <TinyGsmClient.h>
 #include <PubSubClient.h>
-#include "gprs.h"
 
 // Your GPRS credentials
 // Leave empty, if missing user or pass
-char apn[]  = "v-internet";
+char apn[]  = "e-connect";
 char user[] = "";
 char pass[] = "";
 
 
 // Use Hardware Serial on Mega, Leonardo, Micro
-//#define SerialAT Serial1
+#define SerialAT Serial2
 
 // or Software Serial on Uno, Nano
-#include <SoftwareSerial.h>
-SoftwareSerial SerialAT(7, 8); // RX, TX
+//#include <SoftwareSerial.h>
+//SoftwareSerial SerialAT(7, 8); // RX, TX
+
 GPRS gprs(9600);//BaudRate
 
 TinyGsm modem(SerialAT);

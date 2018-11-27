@@ -39,6 +39,11 @@ enum RegStatus {
   REG_UNKNOWN      = 4,
 };
 
+enum TinyGSMDateTimeFormat {
+  DATE_FULL = 0,
+  DATE_TIME = 1,
+  DATE_DATE = 2
+};
 
 class TinyGsmSim800
 {
@@ -109,6 +114,11 @@ public:
     return write(&c, 1);
   }
 
+  virtual size_t write(const char *str) {
+    if (str == NULL) return 0;
+    return write((const uint8_t *)str, strlen(str));
+  }
+
   virtual int available() {
     TINY_GSM_YIELD();
     if (!rx.size() && sock_connected) {
@@ -174,12 +184,12 @@ public:
 
 private:
   TinyGsmSim800* at;
-  uint8_t       mux;
-  uint16_t      sock_available;
-  uint32_t      prev_check;
-  bool          sock_connected;
-  bool          got_data;
-  RxFifo        rx;
+  uint8_t        mux;
+  uint16_t       sock_available;
+  uint32_t       prev_check;
+  bool           sock_connected;
+  bool           got_data;
+  RxFifo         rx;
 };
 
 class GsmClientSecure : public GsmClient
@@ -239,8 +249,8 @@ public:
     for (unsigned long start = millis(); millis() - start < timeout; ) {
       sendAT(GF(""));
       if (waitResponse(200) == 1) {
-          delay(100);
-          return true;
+        delay(100);
+        return true;
       }
       delay(100);
     }
@@ -307,6 +317,14 @@ public:
     if (!testAT()) {
       return false;
     }
+    //Enable Local Time Stamp for getting network time
+    // TODO: Find a better place for this
+    sendAT(GF("+CLTS=1"));
+    if (waitResponse(10000L) != 1) {
+      return false;
+    }
+    sendAT(GF("&W"));
+    waitResponse();
     sendAT(GF("+CFUN=0"));
     if (waitResponse(10000L) != 1) {
       return false;
@@ -709,7 +727,7 @@ public:
    */
 
   String getGsmLocation() {
-    sendAT(GF("+CIPGSMLOC=2,1"));
+    sendAT(GF("+CIPGSMLOC=1,1"));
     if (waitResponse(10000L, GF(GSM_NL "+CIPGSMLOC:")) != 1) {
       return "";
     }
@@ -722,18 +740,26 @@ public:
   /*
    * Time functions
    */
-  String getGsmTime() {
-    sendAT(GF("+CLTS=1"));
-    waitResponse();
-    //sendAT(GF("+CFUN=1,1"));
-    //waitResponse();
+  String getGSMDateTime(TinyGSMDateTimeFormat format) {
     sendAT(GF("+CCLK?"));
-    if (waitResponse(10000L, GF(GSM_NL "+CCLK:")) != 1) {
+    if (waitResponse(2000L, GF(GSM_NL "+CCLK: \"")) != 1) {
       return "";
     }
-    String res = stream.readStringUntil('\n');
-    waitResponse();
-    res.trim();
+
+    String res;
+
+    switch(format) {
+      case DATE_FULL:
+        res = stream.readStringUntil('"');
+      break;
+      case DATE_TIME:
+        streamSkipUntil(',');
+        res = stream.readStringUntil('"');
+      break;
+      case DATE_DATE:
+        res = stream.readStringUntil(',');
+      break;
+    }
     return res;
   }
 
@@ -872,9 +898,12 @@ public:
     streamWrite(tail...);
   }
 
-  bool streamSkipUntil(char c) { //TODO: timeout
-    while (true) {
-      while (!stream.available()) { TINY_GSM_YIELD(); }
+  bool streamSkipUntil(const char c, const unsigned long timeout = 3000L) {
+    unsigned long startMillis = millis();
+    while (millis() - startMillis < timeout) {
+      while (millis() - startMillis < timeout && !stream.available()) {
+        TINY_GSM_YIELD();
+      }
       if (stream.read() == c)
         return true;
     }

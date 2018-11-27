@@ -2,13 +2,12 @@
   CheerLights
   
   Reads the latest CheerLights color on ThingSpeak, and sets a common anode RGB LED on digital pins 5, 6, and 9.
-  On Spark core, the built in RGB LED is used
   Visit http://www.cheerlights.com for more info.
 
   ThingSpeak ( https://www.thingspeak.com ) is an analytic IoT platform service that allows you to aggregate, visualize and 
   analyze live data streams in the cloud.
   
-  Copyright 2016, The MathWorks, Inc.
+  Copyright 2017, The MathWorks, Inc.
 
   Documentation for the ThingSpeak Communication Library for Arduino is in the extras/documentation folder where the library was installed.
   See the accompaning licence file for licensing information.
@@ -19,7 +18,8 @@
 
 // ***********************************************************************************************************
 // This example selects the correct library to use based on the board selected under the Tools menu in the IDE.
-// Yun, Ethernet shield, WiFi101 shield, esp8266, and MXR1000 are all supported.
+// Yun, Ethernet shield, WiFi101 shield and MKR1000 are supported.
+// EPS8266 and ESP32 are not compatible with this example. 
 // With Yun, the default is that you're using the Ethernet connection.
 // If you're using a wi-fi 101 or ethernet shield (http://www.arduino.cc/en/Main/ArduinoWiFiShield), uncomment the corresponding line below
 // ***********************************************************************************************************
@@ -27,7 +27,11 @@
 //#define USE_WIFI101_SHIELD
 //#define USE_ETHERNET_SHIELD
 
-#if !defined(USE_WIFI101_SHIELD) && !defined(USE_ETHERNET_SHIELD) && !defined(ARDUINO_SAMD_MKR1000) && !defined(ARDUINO_AVR_YUN) && !defined(ARDUINO_ARCH_ESP8266)
+#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
+	#error "EPS8266 and ESP32 are not compatible with this example."
+#endif
+
+#if !defined(USE_WIFI101_SHIELD) && !defined(USE_ETHERNET_SHIELD) && !defined(ARDUINO_SAMD_MKR1000) && !defined(ARDUINO_AVR_YUN)
   #error "Uncomment the #define for either USE_WIFI101_SHIELD or USE_ETHERNET_SHIELD"
 #endif
 
@@ -42,14 +46,10 @@ int pinBlue = 3;
     #include "YunClient.h"
     YunClient client;
 #else
-  #if defined(USE_WIFI101_SHIELD) || defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_ARCH_ESP8266)
+  #if defined(USE_WIFI101_SHIELD) || defined(ARDUINO_SAMD_MKR1000)
     // Use WiFi
-    #ifdef ARDUINO_ARCH_ESP8266
-      #include <ESP8266WiFi.h>
-    #else
-      #include <SPI.h>
-      #include <WiFi101.h>
-    #endif
+    #include <SPI.h>
+    #include <WiFi101.h>
     char ssid[] = "<YOURNETWORK>";    //  your network SSID (name) 
     char pass[] = "<YOURPASSWORD>";   // your network password
     int status = WL_IDLE_STATUS;
@@ -76,7 +76,7 @@ void setup() {
   #ifdef ARDUINO_AVR_YUN
     Bridge.begin();
   #else   
-    #if defined(ARDUINO_ARCH_ESP8266) || defined(USE_WIFI101_SHIELD) || defined(ARDUINO_SAMD_MKR1000)
+    #if defined(USE_WIFI101_SHIELD) || defined(ARDUINO_SAMD_MKR1000)
       WiFi.begin(ssid, pass);
     #else
       Ethernet.begin(mac);
