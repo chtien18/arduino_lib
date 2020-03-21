@@ -1,0 +1,57 @@
+// 3GIM(V2) sample sketch for Mega/Leonardo.. -- httpGET
+
+#include "a3gim.h"
+
+#define baudrate 	9600UL
+
+const int powerPin = 7;     // 3gim power pin(If not using power control, 0 is set.)
+const char *server = "api.thingspeak.com";
+const char *path = "/update?api_key=IG54WX1LS4MVNJUE&field1=10&field2=20";
+const int port = a3gsDEFAULT_PORT;
+
+char res[a3gsMAX_RESULT_LENGTH+1];
+int len;
+
+void setup()
+{
+  Serial.begin(baudrate);
+  delay(100);  // Wait for Start Serial Monitor
+  Serial.println("Ready.");
+
+}
+
+void loop()
+{
+  send_data();
+  delay(120000);
+}
+
+void send_data()
+{
+  
+  Serial.print("Initializing.. ");
+  if (a3gs.start(powerPin) == 0 && a3gs.begin(0, baudrate) == 0) {
+    Serial.println("Succeeded.");
+    Serial.print("httpGET() requesting.. ");
+    len = sizeof(res);
+    if (a3gs.httpGET(server, port, path, res, len, true) == 0) {
+      Serial.println("OK!");
+      Serial.print("[");
+      Serial.print(res);
+      Serial.println("]");
+    }
+    else {
+      Serial.print("Can't get HTTP response from ");
+      Serial.println(server);
+    }
+  }
+  else
+    Serial.println("Failed.");
+
+  Serial.println("Shutdown..");
+  a3gs.end();
+  a3gs.shutdown();
+  }
+
+
+// END

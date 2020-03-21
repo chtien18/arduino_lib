@@ -46,9 +46,9 @@ SoftwareSerial SerialAT(8, 7); // RX, TX
 
 // Your GPRS credentials
 // Leave empty, if missing user or pass
-const char apn[]  = "m-wap";
-const char user[] = "mms";
-const char pass[] = "mms";
+const char apn[]  = "soracom.io";
+const char user[] = "sora";
+const char pass[] = "sora";
 
 // Server details
 const char server[] = "cosin.herokuapp.com";
@@ -170,5 +170,5 @@ void loop() {
             digitalWrite(powerpin,HIGH);
             delay(3000);  
   delay(60000);
+//  while(!);
 }
-

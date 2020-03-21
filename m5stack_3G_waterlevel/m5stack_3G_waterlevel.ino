@@ -6,13 +6,13 @@
 TinyGsm modem(Serial2); /* 3G board modem */
 TinyGsmClient ctx(modem);
 
-void setup() {
-  Serial.begin(115200);
-  M5.begin();
-  M5.Lcd.clear(BLACK);
-  M5.Lcd.setTextColor(WHITE);
-  M5.Lcd.println(F("M5Stack + 3G Module"));
+const int analog1 = 35;
+const int analog2 = 36;
 
+int analog1_Value = 0;
+int analog2_Value = 0;
+
+void init_network(){
   M5.Lcd.print(F("modem.restart()"));
   Serial2.begin(115200, SERIAL_8N1, 16, 17);
   modem.restart();
@@ -38,6 +38,21 @@ void setup() {
   IPAddress ipaddr = modem.localIP();
   M5.Lcd.print(ipaddr);
   delay(2000);
+  }
+void setup() {
+  Serial.begin(115200);
+  
+  pinMode(analog1,INPUT);
+  pinMode(analog2,INPUT);
+  
+  M5.begin();
+  M5.Power.begin();
+  M5.Lcd.clear(BLACK);
+  M5.Lcd.setTextColor(WHITE);
+  M5.Lcd.println(F("M5Stack + 3G Module"));
+  delay(1000);
+  getdata();
+  init_network();
 }
 
 void loop() {
@@ -45,18 +60,22 @@ void loop() {
 
   M5.Lcd.clear(BLACK);
   M5.Lcd.setCursor(0, 0);
-  M5.Lcd.println(F("World Clock from worldtimeapi.org"));
+  M5.Lcd.println(F("api.thingspeak.com"));
 
   /* HTTP GET example */
-  if (!ctx.connect("worldtimeapi.org", 80)) {
+  if (!ctx.connect("api.thingspeak.com", 80)) {
     Serial.println(F("Connect failed."));
+    init_network();
     return;
   }
   Serial.println(F("connected."));
-
+  
+  /*Get sensor datata*/
+  String tsdata=getdata();
+  
   /* send request */
-  ctx.println("GET /api/timezone/Asia/Tokyo.txt HTTP/1.0");
-  ctx.println("Host: worldtimeapi.org");
+  ctx.println("GET /update?api_key=X0OIASPTMFKF4PFG" + tsdata + " HTTP/1.0");
+  ctx.println("Host: api.thingspeak.com");
   ctx.println();
   Serial.println("sent.");
 
@@ -74,5 +93,35 @@ void loop() {
   ctx.stop();
   M5.Lcd.println(buf);
 
-  delay(1000 * 10);
+  for(int i=0;i<60;i++)//sleep for 60 minutes
+  M5.Power.lightSleep(SLEEP_SEC(60));//sleep for one minute
 }
+
+String getdata()
+{
+  String data_str="";
+  M5.Lcd.println("Get data...");
+  analog1_Value = analogRead(analog1);
+  Serial.println(analog1_Value);
+  M5.Lcd.setCursor(0, 10);
+  M5.Lcd.printf("Analog1 value:");
+  M5.Lcd.println(analog1_Value);
+  
+  analog2_Value = analogRead(analog2);
+  Serial.println(analog2_Value);
+  M5.Lcd.setCursor(0, 20);
+  M5.Lcd.printf("Analog2 value:");
+  M5.Lcd.println(analog2_Value);
+
+  data_str +="&field1=";
+  
+  data_str +=analog1_Value;
+  data_str +="&field2=";
+  data_str +=analog2_Value;
+  
+  Serial.println(data_str);
+  M5.Lcd.setCursor(0, 40);
+  M5.Lcd.printf("Data:");
+  M5.Lcd.println(data_str);
+  return data_str;
+  }

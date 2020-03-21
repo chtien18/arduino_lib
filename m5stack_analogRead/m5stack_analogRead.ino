@@ -38,7 +38,7 @@ void loop() {
   Serial.println(analog1_Value);
   M5.Lcd.setCursor(0, 0);
   M5.Lcd.printf("Analog1 value:");
-  M5.Lcd.println(analog1_Value);
+  M5.Lcd.println(analog1_Value);0
   
   analog2_Value = analogRead(analog2);
   Serial.println(analog2_Value);
