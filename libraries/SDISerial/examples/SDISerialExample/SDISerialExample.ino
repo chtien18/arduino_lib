@@ -16,7 +16,7 @@ the remaining wire must be connected to ground
 */
 
 //in order to recieve data you must choose a pin that supports interupts
-#define DATALINE_PIN 2
+#define DATALINE_PIN 3
 #define INVERTED 1
 //see:   http://arduino.cc/en/Reference/attachInterrupt
 //for pins that support interupts (2 or 3 typically)

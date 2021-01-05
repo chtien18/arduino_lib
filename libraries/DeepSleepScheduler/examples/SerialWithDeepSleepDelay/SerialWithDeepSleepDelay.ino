@@ -1,8 +1,8 @@
 
-// show the awake times of the CPU on output PIN 13
-#define AWAKE_INDICATION_PIN 13
-// delay deep sleep by 100 milli seconds to allow finishing serial write
-#define DEEP_SLEEP_DELAY 100
+// show the awake times of the CPU on output LED_BUILTIN
+#define AWAKE_INDICATION_PIN LED_BUILTIN
+// delay sleep by 100 milli seconds to allow finishing serial write
+#define SLEEP_DELAY 100
 #include <DeepSleepScheduler.h>
 
 void printMillis() {
@@ -18,7 +18,7 @@ void printMillis() {
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   scheduler.schedule(printMillis);
 }
 

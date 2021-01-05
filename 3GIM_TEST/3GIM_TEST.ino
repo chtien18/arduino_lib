@@ -1,6 +1,6 @@
-#include <SoftwareSerial.h>
-SoftwareSerial Serial3g(4, 5);
-const unsigned long baudrate = 9600;
+//#include <SoftwareSerial.h>
+#define  Serial3g Serial1
+const unsigned long baudrate = 115200;
 void setup() {
 Serial.begin(baudrate);
 Serial3g.begin(baudrate);

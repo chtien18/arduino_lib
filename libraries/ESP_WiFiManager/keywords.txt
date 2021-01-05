@@ -22,6 +22,7 @@ getCustomHTML KEYWORD2
 autoConnect	KEYWORD2
 startConfigPortal KEYWORD2
 getConfigPortalSSID KEYWORD2
+getConfigPortalPW KEYWORD2
 resetSettings	KEYWORD2
 setConfigPortalTimeout	KEYWORD2
 setTimeout  KEYWORD2
@@ -46,6 +47,7 @@ getStoredWiFiSSID KEYWORD2
 getStoredWiFiPass KEYWORD2
 WiFi_SSID KEYWORD2
 WiFi_Pass KEYWORD2
+setHostname	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

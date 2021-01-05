@@ -1,8 +1,8 @@
 // do not use SLEEP_MODE_PWR_DOWN to prevent that
 // the asynchronous clock is stopped
 #define SLEEP_MODE SLEEP_MODE_PWR_SAVE
-// show then the CPU is active on PIN 13
-#define AWAKE_INDICATION_PIN 13
+// show then the CPU is active on LED_BUILTIN
+#define AWAKE_INDICATION_PIN LED_BUILTIN
 #include <DeepSleepScheduler.h>
 
 // the PWM signal can only be used in sleep mode on
@@ -17,12 +17,16 @@ void highValue() {
 }
 
 void lowValue() {
-  analogWrite(PWN_PIN, 100);
+  analogWrite(PWN_PIN, 10);
   scheduler.scheduleDelayed(highValue, 5000);
 }
 
 void setup() {
   pinMode(PWN_PIN, OUTPUT);
+  #ifdef ESP8266
+    analogWriteRange(255);
+  #endif
+
   scheduler.schedule(lowValue);
 }
 

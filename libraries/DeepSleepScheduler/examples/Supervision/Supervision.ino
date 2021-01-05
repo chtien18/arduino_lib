@@ -1,15 +1,13 @@
 #include <DeepSleepScheduler.h>
 
-#define LED_PIN 13
-
 void block() {
-  digitalWrite(LED_PIN, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   while (1);
 }
 
 void setup() {
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
   scheduler.setTaskTimeout(TIMEOUT_2S);
   scheduler.scheduleDelayed(block, 1000);
 }

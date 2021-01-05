@@ -22,13 +22,15 @@
 
 // These constants won't change. They're used to give names to the pins used:
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
-
+const int LED =7;
 
 int sensorValue = 0;        // value read from the pot
 
 
 void setup() {
   // initialize serial communications at 9600 bps:
+  pinMode(LED,OUTPUT);
+  pinMode(analogInPin,INPUT);
   Serial.begin(9600);
   analogReadResolution(12);
 }
@@ -47,4 +49,15 @@ void loop() {
   // wait 2 milliseconds before the next loop for the analog-to-digital
   // converter to settle after the last reading:
   delay(500);
+  digitalWrite(LED,HIGH);
+   sensorValue = analogRead(analogInPin);
+  // map it to the range of the analog out:
+  
+
+  // print the results to the Serial Monitor:
+  Serial.print("sensor = ");
+  Serial.println(sensorValue);
+  delay(500);
+  digitalWrite(LED,LOW);
+  
 }

@@ -18,21 +18,31 @@ $( document ).ready(function() {
          url: '/settings',
          success: function(data) {
            $.each(data, function(key, value, data) {
-             var input = "input:text[name='" + key + "']";
-             $(input).val(value)
+             var input = document.getElementsByName(key);
+             if (input.length > 0) {
+               var dataType = input[0].getAttribute("data-type");
+               if (dataType == "boolean") {
+                 $(input[0]).prop("checked", value);
+                 return
+               }
+
+               $(input[0]).val(value);
+             }
            });
          }
   });
 
   $.fn.serializeObject = function() {
     var o = {};
+    
     var a = this.serializeArray();
     $.each(a, function() {
       var input = document.getElementsByName(this.name);
       var value = this.value;
       var dataType = input[0].getAttribute("data-type");
       if (dataType == "number") value = parseFloat(value);
-        
+      if (dataType == "boolean") value = value == "on";
+
       if (o[this.name]) {
         if (!o[this.name].push) {
           o[this.name] = [o[this.name]];
@@ -42,6 +52,14 @@ $( document ).ready(function() {
         o[this.name] = value || '';
       }
     });
+
+    var c = $('input[type=radio],input[type=checkbox]',this);
+    $.each(c, function(){
+      if(!o.hasOwnProperty(this.name)){
+        o[this.name] = false;
+      }
+    });
+
     return o;
   };
 
@@ -68,4 +86,4 @@ $( document ).ready(function() {
       return false;
     }
   });
-});  
+});

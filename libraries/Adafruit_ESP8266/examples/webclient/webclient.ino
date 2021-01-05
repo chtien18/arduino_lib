@@ -10,10 +10,10 @@
 #include <Adafruit_ESP8266.h>
 #include <SoftwareSerial.h>
 
-#define ESP_RX   2
-#define ESP_TX   3
-#define ESP_RST  4
-SoftwareSerial softser(ESP_RX, ESP_TX);
+#define ARD_RX_ESP_TX   2
+#define ARD_TX_ESP_RX   3
+#define ESP_RST         4
+SoftwareSerial softser(ARD_RX_ESP_TX, ARD_TX_ESP_RX); // Arduino RX = ESP TX, Arduino TX = ESP RX
 
 // Must declare output stream before Adafruit_ESP8266 constructor; can be
 // a SoftwareSerial stream, or Serial/Serial1/etc. for UART.
@@ -23,7 +23,7 @@ Adafruit_ESP8266 wifi(&softser, &Serial, ESP_RST);
 #define ESP_SSID "SSIDNAME" // Your network name here
 #define ESP_PASS "PASSWORD" // Your network password here
 
-#define HOST     "www.adafruit.com"     // Host to contact
+#define HOST     "wifitest.adafruit.com"     // Host to contact
 #define PAGE     "/testwifi/index.html" // Web page to request
 #define PORT     80                     // 80 = HTTP default port
 
@@ -35,8 +35,8 @@ void setup() {
   // Flash LED on power-up
   pinMode(LED_PIN, OUTPUT);
   for(uint8_t i=0; i<3; i++) {
-    digitalWrite(13, HIGH); delay(50);
-    digitalWrite(13, LOW);  delay(100);
+    digitalWrite(LED_PIN, HIGH); delay(50);
+    digitalWrite(LED_PIN, LOW);  delay(100);
   }
 
   // This might work with other firmware versions (no guarantees)

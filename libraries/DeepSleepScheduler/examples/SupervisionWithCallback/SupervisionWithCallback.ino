@@ -2,15 +2,13 @@
 #define SUPERVISION_CALLBACK_TIMEOUT WDTO_1S
 #include <DeepSleepScheduler.h>
 
-#define LED_PIN 13
-
 void block() {
   while (1);
 }
 
 class SupervisionCallback: public Runnable {
     void run() {
-      digitalWrite(LED_PIN, HIGH);
+      digitalWrite(LED_BUILTIN, HIGH);
       // this method is called from the interrupt so
       // delay() does not work
       
@@ -23,9 +21,9 @@ class SupervisionCallback: public Runnable {
 };
 
 void setup() {
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
-  
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
+
   scheduler.setTaskTimeout(TIMEOUT_2S);
   scheduler.setSupervisionCallback(new SupervisionCallback());
   scheduler.scheduleDelayed(block, 1000);
